@@ -25,6 +25,15 @@ defmodule CarbonCopCheckAppWeb.Endpoint do
     gzip: false,
     only: CarbonCopCheckAppWeb.static_paths()
 
+  # Serve uploaded files from /app/uploads in production
+  # (uses a persistent volume on Fly.io)
+  if Application.compile_env(:carbon_cop_check_app, :env) == :prod do
+    plug Plug.Static,
+      at: "/uploads",
+      from: "/app/uploads",
+      gzip: false
+  end
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

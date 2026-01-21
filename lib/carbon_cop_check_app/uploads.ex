@@ -3,7 +3,18 @@ defmodule CarbonCopCheckApp.Uploads do
   Handles file uploads for receipt images.
   """
 
-  @uploads_dir "priv/static/uploads"
+  @doc """
+  Returns the uploads directory path.
+  In production (releases), uses /app/uploads for persistent volume storage.
+  In development, uses priv/static/uploads.
+  """
+  def uploads_dir do
+    if Application.get_env(:carbon_cop_check_app, :env) == :prod do
+      "/app/uploads"
+    else
+      "priv/static/uploads"
+    end
+  end
 
   @doc """
   Saves an uploaded receipt image to the uploads directory.
@@ -18,11 +29,11 @@ defmodule CarbonCopCheckApp.Uploads do
     random_suffix = :crypto.strong_rand_bytes(8) |> Base.url_encode64(padding: false)
     filename = "receipt_#{timestamp}_#{random_suffix}#{extension}"
 
-    dest_path = Path.join(@uploads_dir, filename)
+    dest_path = Path.join(uploads_dir(), filename)
 
     case File.cp(source_path, dest_path) do
       :ok ->
-        # Return path relative to priv/static for web serving
+        # Return path relative to web root for serving
         {:ok, "/uploads/#{filename}"}
 
       {:error, reason} ->
@@ -34,9 +45,9 @@ defmodule CarbonCopCheckApp.Uploads do
   Converts a web-relative path to a full filesystem path.
   """
   def get_full_path(relative_path) do
-    # Remove leading slash and prepend priv/static
-    path = String.trim_leading(relative_path, "/")
-    Path.join("priv/static", path)
+    # Remove leading slash
+    filename = String.trim_leading(relative_path, "/uploads/")
+    Path.join(uploads_dir(), filename)
   end
 
   @doc """
@@ -48,6 +59,6 @@ defmodule CarbonCopCheckApp.Uploads do
   end
 
   defp ensure_uploads_dir do
-    File.mkdir_p!(@uploads_dir)
+    File.mkdir_p!(uploads_dir())
   end
 end
