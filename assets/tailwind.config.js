@@ -14,7 +14,50 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: "#FD4F00",
+        // Carbon Copy Brand Colors
+        'cc-orange': {
+          DEFAULT: '#E8692C',
+          light: '#F4A574',
+          dark: '#C94E14',
+        },
+        'cc-blue': {
+          DEFAULT: '#2B7CBF',
+          light: '#5BA3D9',
+          dark: '#1A5A8F',
+        },
+        'cc-green': {
+          DEFAULT: '#2D7D4E',
+          light: '#4CA66D',
+          dark: '#1E5635',
+        },
+        'cc-gold': {
+          DEFAULT: '#D4A84B',
+          light: '#E8C97A',
+          dark: '#B08930',
+        },
+        'cc-cream': {
+          DEFAULT: '#FDF6E3',
+          dark: '#F5E6C8',
+        },
+        'cc-brown': {
+          DEFAULT: '#3D2914',
+          light: '#5C3D1E',
+        },
+        // Semantic colors
+        'brand': '#E8692C',
+      },
+      fontFamily: {
+        'script': ['Lobster', 'cursive'],
+        'display': ['Bebas Neue', 'sans-serif'],
+        'body': ['Source Sans 3', 'sans-serif'],
+      },
+      boxShadow: {
+        'tattoo': '3px 3px 0 rgba(61, 41, 20, 0.8)',
+        'tattoo-sm': '2px 2px 0 rgba(61, 41, 20, 0.8)',
+        'tattoo-lg': '4px 4px 0 rgba(61, 41, 20, 0.8)',
+      },
+      borderWidth: {
+        '3': '3px',
       }
     },
   },

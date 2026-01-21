@@ -1,0 +1,68 @@
+<div class="space-y-8">
+  <!-- Header -->
+  <div class="flex items-end justify-between">
+    <div>
+      <h1 class="font-script text-5xl text-cc-brown">Trivia Friends</h1>
+    </div>
+    <.link patch={~p"/people/new"} class="btn-tattoo-primary btn-tattoo-sm">
+      + Add Person
+    </.link>
+  </div>
+
+  <!-- People Grid -->
+  <div id="people-grid" phx-update="stream" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div
+      :for={{dom_id, person} <- @streams.people}
+      id={dom_id}
+      class="card-tattoo group hover:shadow-tattoo-lg transition-shadow"
+    >
+      <div class="flex items-center justify-between">
+        <h3 class="font-script text-3xl text-cc-brown"><%= person.name %></h3>
+        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <.link
+            patch={~p"/people/#{person}/edit"}
+            class="text-cc-blue hover:text-cc-blue-dark font-display text-sm"
+          >
+            EDIT
+          </.link>
+          <button
+            phx-click={JS.push("delete", value: %{id: person.id}) |> hide("##{dom_id}")}
+            data-confirm="Remove this person from trivia night?"
+            class="text-cc-orange hover:text-cc-orange-dark font-display text-sm"
+          >
+            DELETE
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    :if={@people_count == 0}
+    class="card-tattoo text-center py-12"
+  >
+    <p class="font-script text-4xl text-cc-brown/50 mb-4">No friends yet!</p>
+    <p class="text-cc-brown/70 mb-6">Add your trivia crew to start splitting checks.</p>
+    <.link patch={~p"/people/new"} class="btn-tattoo-primary">
+      Add Your First Friend
+    </.link>
+  </div>
+</div>
+
+<!-- Modal -->
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="person-modal"
+  show
+  on_cancel={JS.patch(~p"/people")}
+>
+  <.live_component
+    module={CarbonCopCheckAppWeb.PeopleLive.FormComponent}
+    id={@person.id || :new}
+    title={@page_title}
+    action={@live_action}
+    person={@person}
+    patch={~p"/people"}
+  />
+</.modal>

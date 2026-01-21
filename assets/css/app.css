@@ -2,4 +2,128 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-/* This file is for your main application CSS */
+/* Carbon Copy Design System */
+
+@layer components {
+  /* Tattoo-style buttons */
+  .btn-tattoo {
+    @apply inline-flex items-center justify-center px-6 py-3
+           font-display text-xl uppercase tracking-wide
+           border-3 border-cc-brown rounded-lg
+           shadow-tattoo transition-all duration-150
+           hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-tattoo-sm
+           active:translate-x-1 active:translate-y-1 active:shadow-none;
+  }
+
+  .btn-tattoo-primary {
+    @apply btn-tattoo bg-cc-orange text-white hover:bg-cc-orange-dark;
+  }
+
+  .btn-tattoo-secondary {
+    @apply btn-tattoo bg-cc-blue text-white hover:bg-cc-blue-dark;
+  }
+
+  .btn-tattoo-success {
+    @apply btn-tattoo bg-cc-green text-white hover:bg-cc-green-dark;
+  }
+
+  .btn-tattoo-ghost {
+    @apply btn-tattoo bg-cc-cream text-cc-brown hover:bg-cc-cream-dark;
+  }
+
+  /* Smaller tattoo buttons */
+  .btn-tattoo-sm {
+    @apply px-4 py-2 text-base shadow-tattoo-sm
+           hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5;
+  }
+
+  /* Card styles */
+  .card-tattoo {
+    @apply bg-white border-3 border-cc-brown rounded-xl shadow-tattoo p-6;
+  }
+
+  /* Category pills */
+  .pill-food {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold
+           bg-cc-green text-white border-2 border-cc-brown;
+  }
+
+  .pill-drink {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold
+           bg-cc-blue text-white border-2 border-cc-brown;
+  }
+
+  .pill-alcohol {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold
+           bg-cc-orange text-white border-2 border-cc-brown;
+  }
+
+  /* Form inputs */
+  .input-tattoo {
+    @apply w-full px-4 py-3 bg-white border-3 border-cc-brown rounded-lg
+           font-body text-cc-brown placeholder-cc-brown/50
+           focus:outline-none focus:ring-2 focus:ring-cc-gold focus:border-cc-gold;
+  }
+
+  /* Script headings */
+  .heading-script {
+    @apply font-script text-cc-brown;
+  }
+
+  /* Display headings */
+  .heading-display {
+    @apply font-display uppercase tracking-wide text-cc-brown;
+  }
+
+  /* Person toggle button */
+  .person-toggle {
+    @apply px-3 py-1.5 text-sm font-semibold rounded-lg border-2 border-cc-brown
+           transition-all duration-150;
+  }
+
+  .person-toggle-active {
+    @apply bg-cc-gold text-cc-brown shadow-tattoo-sm;
+  }
+
+  .person-toggle-inactive {
+    @apply bg-cc-cream text-cc-brown hover:bg-cc-cream-dark;
+  }
+
+  /* Navigation link */
+  .nav-link {
+    @apply font-display text-lg uppercase tracking-wide text-cc-brown
+           hover:text-cc-orange transition-colors;
+  }
+
+  .nav-link-active {
+    @apply text-cc-orange;
+  }
+}
+
+/* Custom scrollbar for the tattoo aesthetic */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FDF6E3;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D4A84B;
+  border: 2px solid #3D2914;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B08930;
+}
+
+/* Flash message overrides */
+.flash-info {
+  @apply bg-cc-blue border-cc-brown text-white;
+}
+
+.flash-error {
+  @apply bg-cc-orange border-cc-brown text-white;
+}

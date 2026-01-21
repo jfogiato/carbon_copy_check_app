@@ -1,0 +1,91 @@
+<div class="space-y-8">
+  <!-- Header -->
+  <div class="flex items-end justify-between">
+    <div>
+      <h1 class="font-script text-5xl text-cc-brown">Receipts</h1>
+      <p class="font-display text-xl text-cc-brown/70 tracking-wide mt-1">TRIVIA NIGHT TABS</p>
+    </div>
+    <.link navigate={~p"/receipts/new"} class="btn-tattoo-primary btn-tattoo-sm">
+      + Upload Receipt
+    </.link>
+  </div>
+
+  <!-- Receipts List -->
+  <div id="receipts-list" phx-update="stream" class="space-y-4">
+    <div
+      :for={{dom_id, receipt} <- @streams.receipts}
+      id={dom_id}
+      class="card-tattoo hover:shadow-tattoo-lg transition-shadow cursor-pointer"
+      phx-click={JS.navigate(~p"/receipts/#{receipt}")}
+    >
+      <!-- Mobile: stacked layout, Desktop: horizontal -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <!-- Date Badge -->
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-cc-orange rounded-lg border-3 border-cc-brown flex flex-col items-center justify-center text-white shrink-0">
+            <span class="font-display text-xl sm:text-2xl leading-none">
+              <%= Calendar.strftime(receipt.inserted_at, "%d") %>
+            </span>
+            <span class="font-display text-xs tracking-wider">
+              <%= Calendar.strftime(receipt.inserted_at, "%b") |> String.upcase() %>
+            </span>
+          </div>
+
+          <div class="min-w-0">
+            <p class="font-display text-lg text-cc-brown">
+              <%= length(receipt.line_items) %> ITEMS
+            </p>
+            <p class="text-cc-brown/60 text-sm">
+              <%= Calendar.strftime(receipt.inserted_at, "%I:%M %p") %>
+            </p>
+          </div>
+
+          <!-- Total - shown inline on mobile -->
+          <div class="text-right sm:hidden ml-auto">
+            <p class="font-display text-lg text-cc-brown/60">TOTAL</p>
+            <p class="font-script text-xl text-cc-orange">$<%= format_money(calculate_total(receipt)) %></p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between sm:justify-end gap-4">
+          <!-- Total - hidden on mobile, shown on desktop -->
+          <div class="hidden sm:block text-right min-w-[6rem]">
+            <p class="font-display text-sm text-cc-brown/60">TOTAL</p>
+            <p class="font-script text-2xl text-cc-orange">$<%= format_money(calculate_total(receipt)) %></p>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-2" onclick="event.stopPropagation()">
+            <.link
+              navigate={~p"/receipts/#{receipt}/edit"}
+              class="btn-tattoo-secondary btn-tattoo-sm"
+            >
+              Edit
+            </.link>
+            <button
+              phx-click={JS.push("delete", value: %{id: receipt.id}) |> hide("##{dom_id}")}
+              data-confirm="Delete this receipt?"
+              class="btn-tattoo-ghost btn-tattoo-sm"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    :if={@receipt_count == 0}
+    class="card-tattoo text-center py-16"
+  >
+    <p class="font-script text-5xl text-cc-brown/50 mb-4">No receipts yet!</p>
+    <p class="text-cc-brown/70 mb-8 max-w-md mx-auto">
+      Upload a receipt from trivia night and we'll help you split it up fairly.
+    </p>
+    <.link navigate={~p"/receipts/new"} class="btn-tattoo-primary">
+      Upload Your First Receipt
+    </.link>
+  </div>
+</div>

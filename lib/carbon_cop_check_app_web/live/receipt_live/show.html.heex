@@ -1,0 +1,169 @@
+<div class="space-y-8">
+  <!-- Header -->
+  <div class="flex items-end justify-between">
+    <div>
+      <h1 class="font-script text-5xl text-cc-brown">Receipt Summary</h1>
+      <p class="font-display text-xl text-cc-brown/70 tracking-wide mt-1">
+        <%= Calendar.strftime(@receipt.inserted_at, "%B %d, %Y") |> String.upcase() %>
+      </p>
+    </div>
+    <.link navigate={~p"/receipts/#{@receipt}/edit"} class="btn-tattoo-secondary btn-tattoo-sm">
+      Edit Receipt
+    </.link>
+  </div>
+
+  <!-- Screenshot-friendly Quick Summary -->
+  <div class="card-tattoo bg-cc-orange/10">
+    <div class="text-center mb-4">
+      <h2 class="font-script text-3xl text-cc-brown">Trivia Night Split</h2>
+      <p class="font-display text-sm text-cc-brown/60"><%= Calendar.strftime(@receipt.inserted_at, "%B %d, %Y") %></p>
+    </div>
+
+    <div class="divide-y-2 divide-cc-cream">
+      <%= for person <- @people do %>
+        <% person_split = Map.get(@splits, person.id) %>
+        <%= if person_split do %>
+          <div class="flex justify-between items-center py-3">
+            <span class="font-script text-2xl text-cc-brown"><%= person.name %></span>
+            <span class="font-script text-3xl text-cc-orange">$<%= format_money(person_split.total) %></span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="mt-4 pt-4 border-t-3 border-cc-brown/20 flex justify-between items-center">
+      <span class="font-display text-sm text-cc-brown/70">TIP INCLUDED</span>
+      <span class="font-display text-lg text-cc-green">$<%= format_money(@receipt.tip_amount) %></span>
+    </div>
+
+  </div>
+
+  <!-- Detailed Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <%= for person <- @people do %>
+      <% person_split = Map.get(@splits, person.id) %>
+      <%= if person_split do %>
+        <div class="card-tattoo relative overflow-hidden">
+          <!-- Decorative corner -->
+          <div class="absolute top-0 right-0 w-16 h-16 bg-cc-orange transform rotate-45 translate-x-8 -translate-y-8"></div>
+
+          <div class="relative">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="font-script text-3xl text-cc-brown"><%= person.name %></h3>
+              <div class="text-right">
+                <span class="font-script text-4xl text-cc-orange">
+                  $<%= format_money(person_split.total) %>
+                </span>
+                <p class="font-display text-xs text-cc-brown/50">TOTAL OWED</p>
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-4 border-t-2 border-cc-cream">
+              <div class="flex justify-between">
+                <span class="font-display text-sm text-cc-brown/70">SUBTOTAL</span>
+                <span class="font-mono text-cc-brown">$<%= format_money(person_split.subtotal) %></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-display text-sm text-cc-brown/70">KITCHEN FEE</span>
+                <span class="font-mono text-cc-brown">$<%= format_money(person_split.kitchen_fee) %></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-display text-sm text-cc-brown/70">TAX</span>
+                <span class="font-mono text-cc-brown">$<%= format_money(person_split.tax) %></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-display text-sm text-cc-brown/70">TIP SHARE</span>
+                <span class="font-mono text-cc-brown">$<%= format_money(person_split.tip_share) %></span>
+              </div>
+            </div>
+
+            <%= if person_split.items && person_split.items != [] do %>
+              <div class="mt-4 pt-4 border-t-2 border-cc-cream">
+                <h4 class="font-display text-xs text-cc-brown/50 mb-3">ITEMS</h4>
+                <ul class="space-y-2">
+                  <%= for item <- person_split.items do %>
+                    <li class="flex justify-between text-sm">
+                      <span class="text-cc-brown">
+                        <%= item.name %>
+                        <span class={category_pill_class(item.category)}>
+                          <%= item.category %>
+                        </span>
+                        <%= if item.split_count > 1 do %>
+                          <span class="text-cc-brown/40 text-xs">(split <%= item.split_count %> ways)</span>
+                        <% end %>
+                      </span>
+                      <span class="font-mono text-cc-brown">$<%= format_money(item.price) %></span>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Unassigned items warning -->
+  <% unassigned = Enum.filter(@receipt.line_items, fn item -> item.line_item_assignments == [] end) %>
+  <%= if unassigned != [] do %>
+    <div class="card-tattoo bg-cc-gold/20 border-cc-gold">
+      <h4 class="font-display text-lg text-cc-brown mb-3">UNASSIGNED ITEMS</h4>
+      <p class="text-sm text-cc-brown/70 mb-4">
+        These items aren't assigned to anyone and won't be included in the split:
+      </p>
+      <ul class="space-y-2 mb-4">
+        <%= for item <- unassigned do %>
+          <li class="flex justify-between text-sm text-cc-brown">
+            <span><%= item.name %></span>
+            <span class="font-mono">$<%= format_money(item.price) %></span>
+          </li>
+        <% end %>
+      </ul>
+      <.link navigate={~p"/receipts/#{@receipt}/edit"} class="btn-tattoo-primary btn-tattoo-sm">
+        Assign These Items
+      </.link>
+    </div>
+  <% end %>
+
+  <!-- Receipt Details -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card-tattoo p-4">
+      <h3 class="font-display text-sm text-cc-brown/70 mb-3">RECEIPT IMAGE</h3>
+      <img
+        :if={@receipt.image_path}
+        src={@receipt.image_path}
+        alt="Receipt"
+        class="max-w-full rounded-lg border-2 border-cc-brown"
+      />
+      <div :if={!@receipt.image_path} class="bg-cc-cream rounded-lg p-8 text-center text-cc-brown/50 border-2 border-dashed border-cc-brown/30">
+        No image
+      </div>
+    </div>
+
+    <div class="card-tattoo">
+      <h3 class="font-display text-sm text-cc-brown/70 mb-4">RECEIPT DETAILS</h3>
+      <div class="space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b-2 border-cc-cream">
+          <span class="font-display text-cc-brown">TOTAL ITEMS</span>
+          <span class="font-script text-2xl text-cc-brown"><%= length(@receipt.line_items) %></span>
+        </div>
+        <div class="flex justify-between items-center pb-3 border-b-2 border-cc-cream">
+          <span class="font-display text-cc-brown">TIP AMOUNT</span>
+          <span class="font-script text-2xl text-cc-green">$<%= format_money(@receipt.tip_amount) %></span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="font-display text-cc-brown">DATE</span>
+          <span class="font-display text-cc-brown"><%= Calendar.strftime(@receipt.inserted_at, "%b %d, %Y") %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back link -->
+  <div class="pt-4">
+    <.link navigate={~p"/receipts"} class="font-display text-cc-brown hover:text-cc-orange transition-colors">
+      &larr; BACK TO RECEIPTS
+    </.link>
+  </div>
+</div>

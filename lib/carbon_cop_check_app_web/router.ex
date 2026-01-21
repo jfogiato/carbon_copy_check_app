@@ -18,6 +18,15 @@ defmodule CarbonCopCheckAppWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/receipts", ReceiptLive.Index, :index
+    live "/receipts/new", ReceiptLive.New, :new
+    live "/receipts/:id", ReceiptLive.Show, :show
+    live "/receipts/:id/edit", ReceiptLive.Edit, :edit
+
+    live "/people", PeopleLive.Index, :index
+    live "/people/new", PeopleLive.Index, :new
+    live "/people/:id/edit", PeopleLive.Index, :edit
   end
 
   # Other scopes may use custom stacks.

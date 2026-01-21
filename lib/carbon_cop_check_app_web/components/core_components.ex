@@ -50,7 +50,7 @@ defmodule CarbonCopCheckAppWeb.CoreComponents do
       data-cancel={JS.exec(@on_cancel, "phx-remove")}
       class="relative z-50 hidden"
     >
-      <div id={"#{@id}-bg"} class="bg-zinc-50/90 fixed inset-0 transition-opacity" aria-hidden="true" />
+      <div id={"#{@id}-bg"} class="bg-cc-brown/70 fixed inset-0 transition-opacity" aria-hidden="true" />
       <div
         class="fixed inset-0 overflow-y-auto"
         aria-labelledby={"#{@id}-title"}
@@ -60,22 +60,22 @@ defmodule CarbonCopCheckAppWeb.CoreComponents do
         tabindex="0"
       >
         <div class="flex min-h-full items-center justify-center">
-          <div class="w-full max-w-3xl p-4 sm:p-6 lg:py-8">
+          <div class="w-full max-w-xl p-4 sm:p-6 lg:py-8">
             <.focus_wrap
               id={"#{@id}-container"}
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-14 shadow-lg ring-1 transition"
+              class="relative hidden bg-white border-3 border-cc-brown rounded-xl shadow-tattoo-lg p-8 transition"
             >
-              <div class="absolute top-6 right-5">
+              <div class="absolute top-4 right-4">
                 <button
                   phx-click={JS.exec("data-cancel", to: "##{@id}")}
                   type="button"
-                  class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
+                  class="w-8 h-8 flex items-center justify-center rounded-full bg-cc-cream border-2 border-cc-brown text-cc-brown hover:bg-cc-orange hover:text-white transition-colors"
                   aria-label={gettext("close")}
                 >
-                  <.icon name="hero-x-mark-solid" class="h-5 w-5" />
+                  <.icon name="hero-x-mark-solid" class="h-4 w-4" />
                 </button>
               </div>
               <div id={"#{@id}-content"}>
@@ -115,20 +115,20 @@ defmodule CarbonCopCheckAppWeb.CoreComponents do
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       class={[
-        "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
-        @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
-        @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
+        "fixed top-4 right-4 w-80 sm:w-96 z-50 rounded-xl p-4 border-3 border-cc-brown shadow-tattoo",
+        @kind == :info && "bg-cc-green text-white",
+        @kind == :error && "bg-cc-orange text-white"
       ]}
       {@rest}
     >
-      <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
-        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4" />
+      <p :if={@title} class="flex items-center gap-2 font-display text-sm tracking-wide">
+        <.icon :if={@kind == :info} name="hero-check-circle-mini" class="h-5 w-5" />
+        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-5 w-5" />
         {@title}
       </p>
-      <p class="mt-2 text-sm leading-5">{msg}</p>
-      <button type="button" class="group absolute top-1 right-1 p-2" aria-label={gettext("close")}>
-        <.icon name="hero-x-mark-solid" class="h-5 w-5 opacity-40 group-hover:opacity-70" />
+      <p class="mt-1 text-sm leading-5">{msg}</p>
+      <button type="button" class="group absolute top-2 right-2 p-2" aria-label={gettext("close")}>
+        <.icon name="hero-x-mark-solid" class="h-5 w-5 opacity-70 group-hover:opacity-100" />
       </button>
     </div>
     """
