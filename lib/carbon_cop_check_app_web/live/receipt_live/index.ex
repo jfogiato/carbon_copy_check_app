@@ -24,6 +24,12 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.Index do
 
   def format_money(_), do: "0.00"
 
+  def to_eastern(datetime) do
+    datetime
+    |> DateTime.from_naive!("Etc/UTC")
+    |> DateTime.shift_zone!("America/New_York")
+  end
+
   @impl true
   def handle_params(_params, _url, socket) do
     {:noreply, assign(socket, :page_title, "Receipts")}

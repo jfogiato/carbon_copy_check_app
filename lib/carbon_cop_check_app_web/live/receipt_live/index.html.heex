@@ -23,10 +23,10 @@
           <!-- Date Badge -->
           <div class="w-14 h-14 sm:w-16 sm:h-16 bg-cc-orange rounded-lg border-3 border-cc-brown flex flex-col items-center justify-center text-white shrink-0">
             <span class="font-display text-xl sm:text-2xl leading-none">
-              <%= Calendar.strftime(receipt.inserted_at, "%d") %>
+              <%= Calendar.strftime(to_eastern(receipt.inserted_at), "%d") %>
             </span>
             <span class="font-display text-xs tracking-wider">
-              <%= Calendar.strftime(receipt.inserted_at, "%b") |> String.upcase() %>
+              <%= Calendar.strftime(to_eastern(receipt.inserted_at), "%b") |> String.upcase() %>
             </span>
           </div>
 
@@ -35,7 +35,7 @@
               <%= length(receipt.line_items) %> ITEMS
             </p>
             <p class="text-cc-brown/60 text-sm">
-              <%= Calendar.strftime(receipt.inserted_at, "%I:%M %p") %>
+              <%= Calendar.strftime(to_eastern(receipt.inserted_at), "%I:%M %p") %>
             </p>
           </div>
 
