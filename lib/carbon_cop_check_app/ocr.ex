@@ -122,22 +122,31 @@ defmodule CarbonCopCheckApp.OCR do
 
   # Expand items with quantity prefixes into multiple items
   # e.g., "2 Traminette Glass" at $18.00 -> two items at $9.00 each
+  # Also strips leading "1" from items like "1 Bindle" -> "Bindle"
   defp expand_quantity(%{name: name, price: price, category: category} = item) do
     # Match patterns like "2 Item Name" or "2x Item Name" or "2 x Item Name"
     case Regex.run(~r/^(\d+)\s*x?\s+(.+)$/i, name) do
       [_, qty_str, item_name] ->
         qty = String.to_integer(qty_str)
+        clean_name = String.trim(item_name)
 
-        if qty > 1 and qty <= 10 do
-          # Divide price evenly among the items
-          unit_price = Decimal.div(price, qty) |> Decimal.round(2)
+        cond do
+          qty == 1 ->
+            # Just strip the "1" prefix, keep same price
+            [%{name: clean_name, price: price, category: category}]
 
-          # Create qty number of items
-          for _ <- 1..qty do
-            %{name: String.trim(item_name), price: unit_price, category: category}
-          end
-        else
-          [item]
+          qty > 1 and qty <= 10 ->
+            # Divide price evenly among the items
+            unit_price = Decimal.div(price, qty) |> Decimal.round(2)
+
+            # Create qty number of items
+            for _ <- 1..qty do
+              %{name: clean_name, price: unit_price, category: category}
+            end
+
+          true ->
+            # qty is 0 or > 10, likely not a real quantity prefix
+            [item]
         end
 
       nil ->
