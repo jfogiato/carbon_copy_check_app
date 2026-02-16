@@ -47,10 +47,10 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.New do
         # Get the full filesystem path for OCR
         full_path = Uploads.get_full_path(image_path)
 
-        # Extract text via OCR
+        # Extract text and line items via Claude Vision API
         {raw_text, parsed_items} =
-          case OCR.extract_text(full_path) do
-            {:ok, text} -> {text, OCR.parse_line_items(text)}
+          case OCR.extract_and_parse(full_path) do
+            {:ok, text, items} -> {text, items}
             {:error, reason} ->
               require Logger
               Logger.error("OCR failed for #{full_path}: #{reason}")

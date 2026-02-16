@@ -35,6 +35,9 @@ carbon_cop_check_app-*.tar
 /priv/static/uploads/*
 !/priv/static/uploads/.gitkeep
 
+# Local secrets
+.env
+
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/

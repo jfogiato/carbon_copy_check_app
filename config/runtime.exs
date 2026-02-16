@@ -20,6 +20,8 @@ if System.get_env("PHX_SERVER") do
   config :carbon_cop_check_app, CarbonCopCheckAppWeb.Endpoint, server: true
 end
 
+config :carbon_cop_check_app, :anthropic_api_key, System.get_env("ANTHROPIC_API_KEY")
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
