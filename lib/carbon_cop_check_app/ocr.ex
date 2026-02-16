@@ -30,10 +30,12 @@ defmodule CarbonCopCheckApp.OCR do
   Checks if Tesseract is installed and available.
   """
   def tesseract_available? do
-    case System.cmd("which", ["tesseract"], stderr_to_stdout: true) do
-      {path, 0} when byte_size(path) > 0 -> true
+    case System.cmd("tesseract", ["--version"], stderr_to_stdout: true) do
+      {_, 0} -> true
       _ -> false
     end
+  rescue
+    _ -> false
   end
 
   @doc """

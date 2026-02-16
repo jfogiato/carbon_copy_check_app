@@ -51,7 +51,10 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.New do
         {raw_text, parsed_items} =
           case OCR.extract_text(full_path) do
             {:ok, text} -> {text, OCR.parse_line_items(text)}
-            {:error, _} -> {"", []}
+            {:error, reason} ->
+              require Logger
+              Logger.error("OCR failed for #{full_path}: #{reason}")
+              {"", []}
           end
 
         # Create the receipt
