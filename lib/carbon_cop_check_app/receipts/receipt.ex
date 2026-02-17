@@ -8,6 +8,8 @@ defmodule CarbonCopCheckApp.Receipts.Receipt do
     field :raw_ocr_text, :string
 
     has_many :line_items, CarbonCopCheckApp.Receipts.LineItem
+    has_many :receipt_attendees, CarbonCopCheckApp.Receipts.ReceiptAttendee
+    has_many :attendees, through: [:receipt_attendees, :person]
 
     timestamps(type: :utc_datetime)
   end

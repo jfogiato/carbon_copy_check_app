@@ -10,7 +10,8 @@ defmodule CarbonCopCheckApp.Application do
     children = [
       CarbonCopCheckAppWeb.Telemetry,
       CarbonCopCheckApp.Repo,
-      {DNSCluster, query: Application.get_env(:carbon_cop_check_app, :dns_cluster_query) || :ignore},
+      {DNSCluster,
+       query: Application.get_env(:carbon_cop_check_app, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: CarbonCopCheckApp.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: CarbonCopCheckApp.Finch},

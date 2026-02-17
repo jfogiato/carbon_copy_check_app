@@ -1,0 +1,68 @@
+<div class="max-w-2xl mx-auto space-y-8">
+  <!-- Header -->
+  <div class="text-center">
+    <h1 class="font-script text-5xl text-cc-brown">Who's Here?</h1>
+    <p class="font-display text-xl text-cc-brown/70 tracking-wide mt-2">SELECT TONIGHT'S CREW</p>
+  </div>
+  
+<!-- People Grid -->
+  <div class="card-tattoo p-6">
+    <div class="flex justify-between items-center mb-4">
+      <span class="font-display text-sm text-cc-brown/70">
+        {MapSet.size(@selected_ids)}/{length(@people)} SELECTED
+      </span>
+      <div class="flex gap-3">
+        <button
+          phx-click="select_all"
+          class="font-display text-xs text-cc-blue hover:text-cc-blue-dark"
+        >
+          ALL
+        </button>
+        <button
+          phx-click="select_none"
+          class="font-display text-xs text-cc-orange hover:text-cc-orange-dark"
+        >
+          NONE
+        </button>
+      </div>
+    </div>
+
+    <%= if @people == [] do %>
+      <div class="text-center py-8">
+        <p class="text-cc-brown/50 mb-4">No people added yet.</p>
+        <.link navigate={~p"/people"} class="btn-tattoo-primary btn-tattoo-sm">
+          + Add People
+        </.link>
+      </div>
+    <% else %>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <%= for person <- @people do %>
+          <button
+            phx-click="toggle_person"
+            phx-value-person-id={person.id}
+            class={attendee_btn_class(MapSet.member?(@selected_ids, person.id))}
+          >
+            <span class="font-script text-2xl">{person.name}</span>
+          </button>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  
+<!-- Actions -->
+  <div class="flex items-center justify-between">
+    <.link
+      navigate={~p"/receipts"}
+      class="font-display text-cc-brown hover:text-cc-orange transition-colors"
+    >
+      &larr; CANCEL
+    </.link>
+    <button
+      phx-click="continue"
+      disabled={MapSet.size(@selected_ids) == 0}
+      class={"btn-tattoo-success #{if MapSet.size(@selected_ids) == 0, do: "opacity-50 cursor-not-allowed"}"}
+    >
+      Continue &rarr;
+    </button>
+  </div>
+</div>

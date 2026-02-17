@@ -7,7 +7,7 @@ defmodule CarbonCopCheckAppWeb.PeopleLive.FormComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <h2 class="font-script text-4xl text-cc-brown mb-6"><%= @title %></h2>
+      <h2 class="font-script text-4xl text-cc-brown mb-6">{@title}</h2>
 
       <.simple_form
         for={@form}
@@ -28,7 +28,7 @@ defmodule CarbonCopCheckAppWeb.PeopleLive.FormComponent do
               autofocus
             />
             <.error :for={msg <- @form[:name].errors}>
-              <%= translate_error(msg) %>
+              {translate_error(msg)}
             </.error>
           </div>
         </div>

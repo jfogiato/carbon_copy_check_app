@@ -10,12 +10,18 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.Show do
     people = Receipts.list_people()
     splits = Calculator.calculate_splits(receipt)
 
+    grand_total =
+      splits
+      |> Enum.map(fn {_person_id, totals} -> totals.total end)
+      |> Enum.reduce(Decimal.new(0), &Decimal.add/2)
+
     {:ok,
      socket
      |> assign(:page_title, "Receipt Summary")
      |> assign(:receipt, receipt)
      |> assign(:people, people)
-     |> assign(:splits, splits)}
+     |> assign(:splits, splits)
+     |> assign(:grand_total, grand_total)}
   end
 
   def format_money(decimal) when is_struct(decimal, Decimal) do
@@ -29,5 +35,7 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.Show do
   def category_pill_class("food"), do: "pill-food text-xs ml-1"
   def category_pill_class("drink"), do: "pill-drink text-xs ml-1"
   def category_pill_class("alcohol"), do: "pill-alcohol text-xs ml-1"
-  def category_pill_class(_), do: "bg-cc-cream text-cc-brown text-xs px-2 py-0.5 rounded-full ml-1"
+
+  def category_pill_class(_),
+    do: "bg-cc-cream text-cc-brown text-xs px-2 py-0.5 rounded-full ml-1"
 end

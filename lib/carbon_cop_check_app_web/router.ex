@@ -22,6 +22,7 @@ defmodule CarbonCopCheckAppWeb.Router do
     live "/receipts", ReceiptLive.Index, :index
     live "/receipts/new", ReceiptLive.New, :new
     live "/receipts/:id", ReceiptLive.Show, :show
+    live "/receipts/:id/attendees", ReceiptLive.Attendees, :attendees
     live "/receipts/:id/edit", ReceiptLive.Edit, :edit
 
     live "/people", PeopleLive.Index, :index

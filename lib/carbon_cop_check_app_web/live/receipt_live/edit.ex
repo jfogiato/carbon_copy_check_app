@@ -8,7 +8,7 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.Edit do
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     receipt = Receipts.get_receipt!(id)
-    people = Receipts.list_people()
+    people = if receipt.attendees == [], do: Receipts.list_people(), else: receipt.attendees
     splits = Calculator.calculate_splits(receipt)
 
     {:ok,
@@ -24,9 +24,9 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.Edit do
   @impl true
   def handle_event("update_category", %{"item_id" => item_id, "category" => category}, socket) do
     line_item = Receipts.get_line_item!(item_id)
-    {:ok, _} = Receipts.update_line_item(line_item, %{category: category})
+    {:ok, updated_item} = Receipts.update_line_item(line_item, %{category: category})
 
-    {:noreply, reload_receipt(socket)}
+    {:noreply, update_line_item_in_place(socket, updated_item)}
   end
 
   @impl true
@@ -35,7 +35,9 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.Edit do
     person = Receipts.get_person!(person_id)
     Receipts.toggle_person_assignment(line_item, person)
 
-    {:noreply, reload_receipt(socket)}
+    # Refetch this single item with associations to get updated assignments
+    updated_item = Receipts.get_line_item!(item_id)
+    {:noreply, update_line_item_in_place(socket, updated_item)}
   end
 
   @impl true
@@ -110,12 +112,31 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.Edit do
       {:ok, _} ->
         {:noreply,
          socket
-         |> assign(:new_item_form, to_form(Receipts.change_line_item(%LineItem{}), as: "line_item"))
+         |> assign(
+           :new_item_form,
+           to_form(Receipts.change_line_item(%LineItem{}), as: "line_item")
+         )
          |> reload_receipt()}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :new_item_form, to_form(changeset))}
     end
+  end
+
+  defp update_line_item_in_place(socket, updated_item) do
+    receipt = socket.assigns.receipt
+
+    updated_line_items =
+      Enum.map(receipt.line_items, fn item ->
+        if item.id == updated_item.id, do: updated_item, else: item
+      end)
+
+    updated_receipt = %{receipt | line_items: updated_line_items}
+    splits = Calculator.calculate_splits(updated_receipt)
+
+    socket
+    |> assign(:receipt, updated_receipt)
+    |> assign(:splits, splits)
   end
 
   defp reload_receipt(socket) do

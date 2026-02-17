@@ -37,6 +37,7 @@ carbon_cop_check_app-*.tar
 
 # Local secrets
 .env
+.envrc
 
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log

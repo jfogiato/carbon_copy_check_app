@@ -4,8 +4,8 @@
     <h1 class="font-script text-5xl text-cc-brown">Upload Receipt</h1>
     <p class="font-display text-xl text-cc-brown/70 tracking-wide mt-2">SNAP A PIC OF THAT TAB</p>
   </div>
-
-  <!-- Upload Form -->
+  
+<!-- Upload Form -->
   <form id="upload-form" phx-submit="save" phx-change="validate" class="card-tattoo">
     <div
       class="border-3 border-dashed border-cc-brown/30 rounded-xl p-8 text-center hover:border-cc-orange transition-colors bg-cc-cream/50"
@@ -31,10 +31,13 @@
       <%= for entry <- @uploads.receipt_image.entries do %>
         <div class="space-y-4">
           <div class="flex items-center justify-center">
-            <.live_img_preview entry={entry} class="max-h-80 rounded-xl border-3 border-cc-brown shadow-tattoo" />
+            <.live_img_preview
+              entry={entry}
+              class="max-h-80 rounded-xl border-3 border-cc-brown shadow-tattoo"
+            />
           </div>
           <div class="flex items-center justify-between bg-cc-cream rounded-lg px-4 py-2 border-2 border-cc-brown">
-            <span class="font-display text-sm text-cc-brown truncate"><%= entry.client_name %></span>
+            <span class="font-display text-sm text-cc-brown truncate">{entry.client_name}</span>
             <button
               type="button"
               phx-click="cancel-upload"
@@ -44,28 +47,32 @@
               REMOVE
             </button>
           </div>
-
-          <!-- Progress bar -->
+          
+<!-- Progress bar -->
           <div class="w-full bg-cc-cream rounded-full h-3 border-2 border-cc-brown overflow-hidden">
             <div
               class="bg-cc-green h-full transition-all duration-300"
               style={"width: #{entry.progress}%"}
-            ></div>
+            >
+            </div>
           </div>
 
           <%= for err <- upload_errors(@uploads.receipt_image, entry) do %>
-            <p class="text-cc-orange font-display text-sm"><%= error_to_string(err) %></p>
+            <p class="text-cc-orange font-display text-sm">{error_to_string(err)}</p>
           <% end %>
         </div>
       <% end %>
     </div>
 
     <%= for err <- upload_errors(@uploads.receipt_image) do %>
-      <p class="mt-4 text-cc-orange font-display text-sm text-center"><%= error_to_string(err) %></p>
+      <p class="mt-4 text-cc-orange font-display text-sm text-center">{error_to_string(err)}</p>
     <% end %>
 
     <div class="mt-8 flex items-center justify-between">
-      <.link navigate={~p"/receipts"} class="font-display text-cc-brown hover:text-cc-orange transition-colors">
+      <.link
+        navigate={~p"/receipts"}
+        class="font-display text-cc-brown hover:text-cc-orange transition-colors"
+      >
         &larr; CANCEL
       </.link>
       <button
@@ -73,12 +80,12 @@
         disabled={@uploads.receipt_image.entries == [] || @processing}
         class={"btn-tattoo-success #{if @uploads.receipt_image.entries == [] || @processing, do: "opacity-50 cursor-not-allowed"}"}
       >
-        <%= if @processing, do: "Processing...", else: "Upload & Process" %>
+        {if @processing, do: "Processing...", else: "Upload & Process"}
       </button>
     </div>
   </form>
-
-  <!-- Help text -->
+  
+<!-- Help text -->
   <div class="text-center text-cc-brown/60 text-sm">
     <p class="font-display">PRO TIP: FLATTEN THE RECEIPT AND USE GOOD LIGHTING</p>
     <p class="mt-1">Our OCR will try to read it, but you can always edit items manually.</p>

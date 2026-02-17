@@ -7,7 +7,13 @@ defmodule CarbonCopCheckApp.Receipts do
   import Ecto.Query, warn: false
   alias CarbonCopCheckApp.Repo
 
-  alias CarbonCopCheckApp.Receipts.{Person, Receipt, LineItem, LineItemAssignment}
+  alias CarbonCopCheckApp.Receipts.{
+    Person,
+    Receipt,
+    LineItem,
+    LineItemAssignment,
+    ReceiptAttendee
+  }
 
   # People
 
@@ -48,7 +54,7 @@ defmodule CarbonCopCheckApp.Receipts do
 
   def get_receipt!(id) do
     Receipt
-    |> preload(line_items: [:people, :line_item_assignments])
+    |> preload([:attendees, line_items: [:people, :line_item_assignments]])
     |> Repo.get!(id)
   end
 
@@ -124,6 +130,22 @@ defmodule CarbonCopCheckApp.Receipts do
 
   def person_assigned?(%LineItem{} = line_item, person_id) do
     Enum.any?(line_item.line_item_assignments, &(&1.person_id == person_id))
+  end
+
+  # Receipt Attendees
+
+  def set_attendees(%Receipt{} = receipt, person_ids) when is_list(person_ids) do
+    # Delete existing attendees
+    from(ra in ReceiptAttendee, where: ra.receipt_id == ^receipt.id) |> Repo.delete_all()
+
+    # Insert new attendees
+    Enum.each(person_ids, fn person_id ->
+      %ReceiptAttendee{}
+      |> ReceiptAttendee.changeset(%{receipt_id: receipt.id, person_id: person_id})
+      |> Repo.insert!()
+    end)
+
+    :ok
   end
 
   # Bulk operations for creating line items from OCR

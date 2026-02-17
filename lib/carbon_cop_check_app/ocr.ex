@@ -11,8 +11,8 @@ defmodule CarbonCopCheckApp.OCR do
   You are reading a receipt image from Carbon Copy brewery. Extract all individual line items (food, drinks, alcohol) with their prices.
 
   IMPORTANT categorization rules for Carbon Copy:
-  - Carbon Copy house beers (categorize as "alcohol"): Bindle, Coy, Frill, Gully, Keen, Lane, Mote, Tender, Whir
-  - Carbon Copy food items (categorize as "food"): pizza, rosso, pepperoni, sausage, samosa, mushroom, cheese, vegan, prosciutto, fig, wings, salad, caesar, cobb, fries, artichokes, zeppoles, chili, crisp
+  - Carbon Copy house beers (categorize as "alcohol"): Bindle, Coy, Frill, Gully, Keen, Lane, Mote, Tender, Whir, Twice
+  - Carbon Copy food items (categorize as "food"): pizza, rosso, pepperoni, sausage, samosa, mushroom, special, cheese, vegan, prosciutto, fig, wings, salad, caesar, cobb, fries, artichokes, zeppoles, chili, crisp
   - Beer/wine/spirits/cocktails → "alcohol"
   - Coffee, tea, soda, juice, water, non-alcoholic drinks → "drink"
   - Everything else → "food"
@@ -21,16 +21,20 @@ defmodule CarbonCopCheckApp.OCR do
 
   If an item has a quantity prefix (e.g., "2 Burger $24.00"), expand it into separate items with the price divided evenly (e.g., two "Burger" items at $12.00 each).
 
+  Also extract the tip/gratuity amount if visible on the receipt.
+
   Respond with ONLY valid JSON in this exact format (no markdown, no code fences):
   {
     "raw_text": "the full readable text of the receipt as you see it",
+    "tip": "5.00",
     "items": [
       {"name": "Item Name", "price": "12.50", "category": "food"},
       {"name": "Keen Pint", "price": "7.00", "category": "alcohol"}
     ]
   }
 
-  If you cannot read the receipt or no items are found, return: {"raw_text": "", "items": []}
+  Set "tip" to null if no tip is visible on the receipt.
+  If you cannot read the receipt or no items are found, return: {"raw_text": "", "tip": null, "items": []}
   """
 
   @doc """
@@ -124,6 +128,21 @@ defmodule CarbonCopCheckApp.OCR do
          {:ok, parsed} <- Jason.decode(clean_text) do
       raw_text = Map.get(parsed, "raw_text", "")
 
+      tip =
+        case parsed["tip"] do
+          nil ->
+            nil
+
+          tip_str when is_binary(tip_str) ->
+            case Decimal.parse(tip_str) do
+              {decimal, _} -> decimal
+              :error -> nil
+            end
+
+          _ ->
+            nil
+        end
+
       items =
         parsed
         |> Map.get("items", [])
@@ -132,7 +151,7 @@ defmodule CarbonCopCheckApp.OCR do
           %{name: item["name"], price: price, category: item["category"]}
         end)
 
-      {:ok, {:ok, raw_text, items}}
+      {:ok, {:ok, raw_text, items, tip}}
     else
       error ->
         Logger.error("Failed to parse Claude response: #{inspect(error)}")

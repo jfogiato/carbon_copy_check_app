@@ -22,7 +22,10 @@
             alt="Receipt"
             class="w-full rounded-lg border-2 border-cc-brown"
           />
-          <div :if={!@receipt.image_path} class="bg-cc-cream rounded-lg p-8 text-center text-cc-brown/50 border-2 border-dashed border-cc-brown/30">
+          <div
+            :if={!@receipt.image_path}
+            class="bg-cc-cream rounded-lg p-8 text-center text-cc-brown/50 border-2 border-dashed border-cc-brown/30"
+          >
             No image
           </div>
         </div>
@@ -35,14 +38,15 @@
         </details>
       </div>
     </div>
-
-    <!-- Middle: Line Items -->
+    
+<!-- Middle: Line Items -->
     <div class="lg:col-span-5">
       <div class="space-y-4">
         <h3 class="font-display text-sm text-cc-brown/70">LINE ITEMS</h3>
 
         <%= for line_item <- @receipt.line_items do %>
-          <div class="card-tattoo p-4">
+          <% unassigned? = line_item.line_item_assignments == [] %>
+          <div class={"card-tattoo p-4 #{if unassigned?, do: "border-l-4 border-l-cc-gold bg-cc-gold/5"}"}>
             <%= if @editing_item && @editing_item.id == line_item.id do %>
               <!-- Edit mode -->
               <form phx-submit="save_item" class="space-y-3">
@@ -67,7 +71,11 @@
                   <button type="submit" class="btn-tattoo-success btn-tattoo-sm flex-1">
                     Save
                   </button>
-                  <button type="button" phx-click="cancel_edit" class="btn-tattoo-ghost btn-tattoo-sm">
+                  <button
+                    type="button"
+                    phx-click="cancel_edit"
+                    class="btn-tattoo-ghost btn-tattoo-sm"
+                  >
                     Cancel
                   </button>
                 </div>
@@ -75,11 +83,18 @@
             <% else %>
               <!-- Display mode -->
               <div class="flex justify-between items-start mb-3">
-                <span class="font-display text-lg text-cc-brown"><%= line_item.name %></span>
-                <span class="font-script text-2xl text-cc-green">$<%= format_money(line_item.price) %></span>
+                <div>
+                  <span class="font-display text-lg text-cc-brown">{line_item.name}</span>
+                  <span :if={unassigned?} class="block font-display text-xs text-cc-gold">
+                    UNASSIGNED
+                  </span>
+                </div>
+                <span class="font-script text-2xl text-cc-green">
+                  ${format_money(line_item.price)}
+                </span>
               </div>
-
-              <!-- Category buttons -->
+              
+<!-- Category buttons -->
               <div class="flex gap-2 mb-4">
                 <button
                   phx-click="update_category"
@@ -106,8 +121,8 @@
                   🍺 Alcohol
                 </button>
               </div>
-
-              <!-- Person assignment buttons -->
+              
+<!-- Person assignment buttons -->
               <div class="flex flex-wrap gap-2 mb-3">
                 <%= for person <- @people do %>
                   <button
@@ -116,7 +131,7 @@
                     phx-value-person_id={person.id}
                     class={person_btn_class(Receipts.person_assigned?(line_item, person.id))}
                   >
-                    <%= person.name %>
+                    {person.name}
                   </button>
                 <% end %>
                 <.link
@@ -127,8 +142,8 @@
                   + ADD PEOPLE
                 </.link>
               </div>
-
-              <!-- Item actions -->
+              
+<!-- Item actions -->
               <div class="flex gap-3 pt-3 border-t-2 border-cc-cream">
                 <button
                   phx-click="edit_item"
@@ -149,8 +164,8 @@
             <% end %>
           </div>
         <% end %>
-
-        <!-- Add new item form -->
+        
+<!-- Add new item form -->
         <div class="card-tattoo p-4 bg-cc-cream/50">
           <h4 class="font-display text-sm text-cc-brown/70 mb-3">ADD ITEM</h4>
           <.simple_form
@@ -160,8 +175,18 @@
             phx-submit="add_item"
             class="space-y-3"
           >
-            <.input field={@new_item_form[:name]} type="text" placeholder="Item name" class="input-tattoo" />
-            <.input field={@new_item_form[:price]} type="text" placeholder="0.00" class="input-tattoo" />
+            <.input
+              field={@new_item_form[:name]}
+              type="text"
+              placeholder="Item name"
+              class="input-tattoo"
+            />
+            <.input
+              field={@new_item_form[:price]}
+              type="text"
+              placeholder="0.00"
+              class="input-tattoo"
+            />
             <:actions>
               <button type="submit" class="btn-tattoo-primary btn-tattoo-sm w-full">
                 + Add Item
@@ -171,25 +196,25 @@
         </div>
       </div>
     </div>
-
-    <!-- Right: Running Totals -->
+    
+<!-- Right: Running Totals -->
     <div class="lg:col-span-4">
       <div class="sticky top-4 space-y-4">
         <!-- Tip input -->
-        <div class="card-tattoo p-4">
+        <form phx-change="update_tip" class="card-tattoo p-4">
           <label class="block font-display text-sm text-cc-brown/70 mb-2">TIP AMOUNT</label>
           <div class="flex items-center gap-2">
             <span class="font-script text-2xl text-cc-brown">$</span>
             <input
               type="text"
               value={format_money(@receipt.tip_amount)}
-              phx-blur="update_tip"
-              name="tip"
+              phx-debounce="500"
+              name="value"
               class="input-tattoo text-right font-script text-2xl"
               placeholder="0.00"
             />
           </div>
-        </div>
+        </form>
 
         <h3 class="font-display text-sm text-cc-brown/70">PER-PERSON TOTALS</h3>
 
@@ -197,7 +222,10 @@
           <div class="card-tattoo p-4 bg-cc-gold/20 border-cc-gold">
             <p class="text-cc-brown text-sm">
               No people added yet.
-              <.link navigate={~p"/people"} class="font-display text-cc-orange hover:text-cc-orange-dark">
+              <.link
+                navigate={~p"/people"}
+                class="font-display text-cc-orange hover:text-cc-orange-dark"
+              >
                 ADD PEOPLE
               </.link>
               to assign items.
@@ -209,46 +237,46 @@
           <% person_split = Map.get(@splits, person.id, %{}) %>
           <div class="card-tattoo p-4">
             <div class="flex justify-between items-center mb-3">
-              <span class="font-script text-2xl text-cc-brown"><%= person.name %></span>
+              <span class="font-script text-2xl text-cc-brown">{person.name}</span>
               <span class="font-script text-3xl text-cc-orange">
-                $<%= format_money(person_split[:total] || Decimal.new(0)) %>
+                ${format_money(person_split[:total] || Decimal.new(0))}
               </span>
             </div>
 
             <div class="space-y-1 text-sm">
               <div class="flex justify-between text-cc-brown/70">
                 <span class="font-display text-xs">SUBTOTAL</span>
-                <span>$<%= format_money(person_split[:subtotal] || Decimal.new(0)) %></span>
+                <span>${format_money(person_split[:subtotal] || Decimal.new(0))}</span>
               </div>
               <div class="flex justify-between text-cc-brown/70">
                 <span class="font-display text-xs">KITCHEN FEE (3%)</span>
-                <span>$<%= format_money(person_split[:kitchen_fee] || Decimal.new(0)) %></span>
+                <span>${format_money(person_split[:kitchen_fee] || Decimal.new(0))}</span>
               </div>
               <div class="flex justify-between text-cc-brown/70">
                 <span class="font-display text-xs">TAX</span>
-                <span>$<%= format_money(person_split[:tax] || Decimal.new(0)) %></span>
+                <span>${format_money(person_split[:tax] || Decimal.new(0))}</span>
               </div>
               <div class="flex justify-between text-cc-brown/70">
                 <span class="font-display text-xs">TIP SHARE</span>
-                <span>$<%= format_money(person_split[:tip_share] || Decimal.new(0)) %></span>
+                <span>${format_money(person_split[:tip_share] || Decimal.new(0))}</span>
               </div>
             </div>
 
             <%= if person_split[:items] && person_split[:items] != [] do %>
               <details class="mt-3 pt-3 border-t-2 border-cc-cream">
                 <summary class="font-display text-xs text-cc-brown/50 cursor-pointer hover:text-cc-orange">
-                  ITEMS (<%= length(person_split[:items]) %>)
+                  ITEMS ({length(person_split[:items])})
                 </summary>
                 <ul class="mt-2 space-y-1">
                   <%= for item <- person_split[:items] do %>
                     <li class="flex justify-between text-xs text-cc-brown/70">
                       <span>
-                        <%= item.name %>
+                        {item.name}
                         <%= if item.split_count > 1 do %>
-                          <span class="text-cc-brown/40">(1/<%= item.split_count %>)</span>
+                          <span class="text-cc-brown/40">(1/{item.split_count})</span>
                         <% end %>
                       </span>
-                      <span>$<%= format_money(item.price) %></span>
+                      <span>${format_money(item.price)}</span>
                     </li>
                   <% end %>
                 </ul>

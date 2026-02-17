@@ -48,17 +48,24 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.New do
         full_path = Uploads.get_full_path(image_path)
 
         # Extract text and line items via Claude Vision API
-        {raw_text, parsed_items} =
+        {raw_text, parsed_items, tip_amount} =
           case OCR.extract_and_parse(full_path) do
-            {:ok, text, items} -> {text, items}
+            {:ok, text, items, tip} ->
+              {text, items, tip}
+
             {:error, reason} ->
               require Logger
               Logger.error("OCR failed for #{full_path}: #{reason}")
-              {"", []}
+              {"", [], nil}
           end
 
-        # Create the receipt
-        case Receipts.create_receipt(%{image_path: image_path, raw_ocr_text: raw_text}) do
+        # Create the receipt (with tip if parsed from OCR)
+        receipt_attrs = %{image_path: image_path, raw_ocr_text: raw_text}
+
+        receipt_attrs =
+          if tip_amount, do: Map.put(receipt_attrs, :tip_amount, tip_amount), else: receipt_attrs
+
+        case Receipts.create_receipt(receipt_attrs) do
           {:ok, receipt} ->
             # Create line items from parsed OCR
             Receipts.create_line_items_for_receipt(receipt, parsed_items)
@@ -66,8 +73,8 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.New do
             {:noreply,
              socket
              |> assign(:processing, false)
-             |> put_flash(:info, "Receipt uploaded! Review and categorize the items.")
-             |> push_navigate(to: ~p"/receipts/#{receipt.id}/edit")}
+             |> put_flash(:info, "Receipt uploaded! Select who's here tonight.")
+             |> push_navigate(to: ~p"/receipts/#{receipt.id}/attendees")}
 
           {:error, _changeset} ->
             {:noreply,
