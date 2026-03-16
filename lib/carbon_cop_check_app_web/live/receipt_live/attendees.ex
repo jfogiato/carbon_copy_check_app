@@ -7,8 +7,8 @@ defmodule CarbonCopCheckAppWeb.ReceiptLive.Attendees do
   def mount(%{"id" => id}, _session, socket) do
     receipt = Receipts.get_receipt!(id)
     people = Receipts.list_people()
-    # Default: all people selected
-    selected_ids = MapSet.new(Enum.map(people, & &1.id))
+    # Default: no people selected
+    selected_ids = MapSet.new()
 
     {:ok,
      socket

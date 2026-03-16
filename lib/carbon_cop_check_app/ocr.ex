@@ -19,7 +19,7 @@ defmodule CarbonCopCheckApp.OCR do
 
   DO NOT include subtotals, taxes, totals, tips, gratuity, service fees, or payment method lines.
 
-  If an item has a quantity prefix (e.g., "2 Burger $24.00"), expand it into separate items with the price divided evenly (e.g., two "Burger" items at $12.00 each).
+  If an item has a quantity prefix (e.g., "2 Burger $24.00"), expand it into separate items with the price divided evenly by the quantity. For example: "2 Burger $24.00" → two "Burger" items at $12.00 each ($24.00 / 2 = $12.00). "3 Wing $15.00" → three "Wing" items at $5.00 each ($15.00 / 3 = $5.00). NEVER duplicate the full total price per item — always divide first.
 
   Also extract the tip/gratuity amount if visible on the receipt.
 
